@@ -7,9 +7,46 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils.translation import ugettext_lazy as _
 from django.utils.six import text_type
 
-
 from registration.models import User, FirebaseUser
 from registration.utils import FirebaseUtils
+
+
+class CreateUserSerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        new_user = User.objects.create_user(email=validated_data.get('email'),
+                                            username=validated_data.get('email'),
+                                            password=validated_data.get('password'),
+                                            first_name=validated_data.get('first_name'),
+                                            last_name=validated_data.get('last_name'),
+                                            email_confirmed=True)
+
+        return new_user
+
+    def update(self, instance, validated_data):
+        if 'email' in validated_data:
+            instance.username = validated_data.get('email')
+            instance.email = validated_data.get('email')
+
+        instance.first_name = validated_data.get(
+            'first_name') if 'first_name' in validated_data else instance.first_name
+        instance.last_name = validated_data.get('last_name') if 'last_name' in validated_data else instance.last_name
+
+        instance.save()
+
+        if 'password' in validated_data:
+            instance.set_password(validated_data.get('password'))
+
+        instance.save()
+
+        return instance
+
+    class Meta:
+        model = User
+        fields = ('email', 'password', 'first_name', 'last_name')
+        extra_kwargs = {
+            'password': {'write_only': True},
+        }
 
 
 class FirebaseUserSerializer(serializers.Serializer):
@@ -39,8 +76,8 @@ class FirebaseUserSerializer(serializers.Serializer):
             # create new user
 
             user = User.objects.create_user(
-                            email=data['email'],
-                            username=data['email'].split('@')[0]
+                email=data['email'],
+                username=data['email'].split('@')[0]
             )
 
             if user_from_firebase.display_name:
@@ -52,8 +89,6 @@ class FirebaseUserSerializer(serializers.Serializer):
             data['user'] = user
 
         return data
-
-
 
     def create_or_update_firebase_account(self, validated_data):
         user = validated_data['user']
@@ -86,7 +121,6 @@ class FirebaseUserSerializer(serializers.Serializer):
 
 
 class FirebaseTokenObtainSerializer(serializers.Serializer):
-
     email_field = User.EMAIL_FIELD
 
     def __init__(self, *args, **kwargs):
@@ -151,6 +185,7 @@ class FirebaseTokenObtainPairSerializer(FirebaseTokenObtainSerializer):
         }
 
         return obj
+
     def validate(self, attrs):
         data = super(FirebaseTokenObtainPairSerializer, self).validate(attrs)
 
