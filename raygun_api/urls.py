@@ -21,8 +21,11 @@ from django.conf.urls.static import static
 
 schema_view = get_swagger_view(title="RayGun API")
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('docs', schema_view),
-    path('api/auth/', include("registration.urls")),
-    path('api/rest/', include('rest_framework.urls', namespace='rest_framework'))
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+                  path('admin/', admin.site.urls),
+                  path('docs', schema_view),
+                  path('auth/', include("registration.urls")),
+                  path('api/rest/', include('rest_framework.urls', namespace='rest_framework'), ),
+                  path('api/organizations/', include('organization.urls')),
+                  path('api/logging/', include('logs_manager.urls')),
+
+              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
