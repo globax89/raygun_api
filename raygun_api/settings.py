@@ -22,9 +22,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 try:
     from . import local_settings as external_settings
+
     print("Using local settings")
 except:
     from . import public_settings as external_settings
+
     print("using public settings")
 
 # Quick-start development settings - unsuitable for production
@@ -41,7 +43,7 @@ ALLOWED_HOSTS = external_settings.ALLOWED_HOSTS
 # Application definition
 
 INSTALLED_APPS = [
-    #django apps
+    # django apps
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -56,10 +58,14 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework_swagger',
     'corsheaders',
-
+    'django_elasticsearch_dsl',
+    'django_elasticsearch_dsl_drf',
     # custom apps
     'base',
     'registration',
+    'organization',
+    'logs_manager',
+    'elastic'
 ]
 
 MIDDLEWARE = [
@@ -93,7 +99,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'raygun_api.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
@@ -116,7 +121,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 AUTH_USER_MODEL = 'registration.User'
 
@@ -174,7 +178,6 @@ CORS_ORIGIN_WHITELIST = [
     "https://stackoverflow.com",
 ]
 
-
 # Swagger Settings
 
 SWAGGER_SETTINGS = {
@@ -197,19 +200,28 @@ LOGOUT_URL = 'rest_framework:logout'
 
 # static media dirs
 STATIC_URL = '/static/'
-#STATICFILES_DIRS = [
+# STATICFILES_DIRS = [
 #    os.path.join(BASE_DIR, "static"),
 #    # '/var/www/static/', # to be used with nginx
-#]
+# ]
 
-STATIC_ROOT = os.path.join(BASE_DIR,'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 FIREBASE_CREDENTIALS_PATH = external_settings.FIREBASE_CREDENTIALS_PATH
 
-
 # initialize firebase
 FIREBASE_CREDENTIALS = firebase_admin.credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
 default_app = firebase_admin.initialize_app(FIREBASE_CREDENTIALS)
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'localhost:9200',
+        'timeout': 30,
+    },
+}
+
+ELASTICSEARCH_DSL_AUTOSYNC = True
+ELASTICSEARCH_DSL_PARALLEL = True
