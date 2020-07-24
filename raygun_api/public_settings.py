@@ -26,4 +26,4 @@ EMAIL_HOST_USER = "fake_user"
 EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
 PUBLIC_ID_LENGTH = 10
 
-FIREBASE_CREDENTIALS_PATH = os.path.join(BASE_DIR, "Techfesia2019", "fake_creds.json")
+FIREBASE_CREDENTIALS_PATH = os.path.join(BASE_DIR, "RayGunAPI", "fake_creds.json")
